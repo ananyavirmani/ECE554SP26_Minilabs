@@ -2,19 +2,19 @@
 
 module Minilab1_tb();
 
-localparam [6:0] c00 = 24'h0012CC;
-localparam [6:0] c01 = 24'h00550C;
-localparam [6:0] c02 = 24'h00974C;
-localparam [6:0] c03 = 24'h00D98C;
-localparam [6:0] c04 = 24'h011BCC;
-localparam [6:0] c05 = 24'h015E0C;
-localparam [6:0] c06 = 24'h01A04C;
-localparam [6:0] c07 = 24'h01E28C;
+localparam [23:0] c00 = 24'h0012CC;
+localparam [23:0] c01 = 24'h00550C;
+localparam [23:0] c02 = 24'h00974C;
+localparam [23:0] c03 = 24'h00D98C;
+localparam [23:0] c04 = 24'h011BCC;
+localparam [23:0] c05 = 24'h015E0C;
+localparam [23:0] c06 = 24'h01A04C;
+localparam [23:0] c07 = 24'h01E28C;
 
-localparam [6:0] c [0:7] = {c00, c01, c02, c03, c04, c05, c06, c07};
 
 logic clk;
 logic rst_n;
+logic start, Clr;
 
 logic [6:0] HEX0;
 logic [6:0] HEX1;
@@ -43,7 +43,7 @@ Minilab1 DUT(
 	
 	.LEDR(),
 
-	.KEY({3'b111, rst_n}),
+	.KEY({1'b1, Clr, start, rst_n}),
 
 	.SW(SW)
 );
@@ -52,33 +52,90 @@ initial begin
 
     rst_n = 1'b0;
     clk = 0;
+    start = 0;
+    Clr = 1;
 
     @(negedge clk);
 
     rst_n = 1'b1;
+    start = 1'b1;
+
+    @(negedge clk);
+    start = 1'b0;
 
     repeat (400) @(negedge clk);
-    // SW = 10'd1;
-    // @(negedge clk);
-    // $display("expected: %h, actual: %h", c00, {HEX5[3:0], HEX4[3:0], HEX3[3:0], HEX2[3:0], HEX1[3:0], HEX0[3:0]});
+    
+    if(DUT.macout[0] !== c00) begin
+        $display("TEST 0 FAILED: actual = %h, expected %h", DUT.macout[0], c00);
+        $stop();
+    end
+    else begin
+        $display("TEST 0 PASSED!");
+    end
 
-    // rst_n = 1'b0;
-    // @(negedge clk);
-    // rst_n = 1'b1;
+     if(DUT.macout[1] !== c01) begin
+        $display("TEST 1 FAILED: actual = %h, expected %h", DUT.macout[1], c01);
+        $stop();
+    end
+    else begin
+        $display("TEST 1 PASSED!");
+    end
 
-    // repeat (400) @(negedge clk);
-    // SW = 10'd1;
-    // @(negedge clk);
-    // $display("expected: %h, actual: %h", c00, {HEX5[3:0], HEX4[3:0], HEX3[3:0], HEX2[3:0], HEX1[3:0], HEX0[3:0]});
+     if(DUT.macout[2] !== c02) begin
+        $display("TEST 2 FAILED: actual = %h, expected %h", DUT.macout[2], c02);
+        $stop();
+    end
+    else begin
+        $display("TEST 2 PASSED!");
+    end
 
-    for(i = 0; i < 8; i++)begin
-        SW = 10'h001 << i;
-        @(negedge clk);
-        if(DUT.macout[i] != c[i]) begin
-            $display("TEST %d FAILED: actual = %h, expected %h", i, DUT.macout[i], c[i]);
-            $stop();
-        end
-    end   
+     if(DUT.macout[3] !== c03) begin
+        $display("TEST 3 FAILED: actual = %h, expected %h", DUT.macout[3], c03);
+        $stop();
+    end
+    else begin
+        $display("TEST 3 PASSED!");
+    end
+
+     if(DUT.macout[4] !== c04) begin
+        $display("TEST 4 FAILED: actual = %h, expected %h", DUT.macout[4], c04);
+        $stop();
+    end
+    else begin
+        $display("TEST 4 PASSED!");
+    end
+
+     if(DUT.macout[5] !== c05) begin
+        $display("TEST 5 FAILED: actual = %h, expected %h", DUT.macout[5], c05);
+        $stop();
+    end
+    else begin
+        $display("TEST 5 PASSED!");
+    end
+
+     if(DUT.macout[6] !== c06) begin
+        $display("TEST 6 FAILED: actual = %h, expected %h", DUT.macout[6], c06);
+        $stop();
+    end
+    else begin
+        $display("TEST 6 PASSED!");
+    end
+
+     if(DUT.macout[7] !== c07) begin
+        $display("TEST 7 FAILED: actual = %h, expected %h", DUT.macout[7], c07);
+        $stop();
+    end
+    else begin
+        $display("TEST 7 PASSED!");
+    end
+
+    Clr = 1'b0;
+
+    @(posedge clk);
+    start = 1'b1;
+    Clr = 1'b1;
+
+    repeat (400) @(posedge clk);
 
     $display("YAHOO! ALL TESTS PASSED!!!!");
     $stop();
