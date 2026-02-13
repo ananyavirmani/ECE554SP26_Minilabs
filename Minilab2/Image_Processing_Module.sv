@@ -19,6 +19,9 @@ logic mDVAL;
 logic [11:0] gray_pixel;
 logic [11:0] gDATA_0, gDATA_1;
 
+logic [15:0] mag;
+logic window_valid;
+
 assign gray_pixel = gray_scale[13:2];
 
 Line_Buffer1 u0(
@@ -111,7 +114,7 @@ always @(posedge iCLK or negedge iRST) begin
     win_valid_1 <= win_valid_0;
   end
 end
-wire window_valid = win_valid_1;
+assign window_valid = win_valid_1;
 
 // example Sobel (signed accumulate; widen bits as needed)
 wire signed [15:0] Gx = -$signed({1'b0,a00}) - 2*$signed({1'b0,a10}) - $signed({1'b0,a20})
@@ -120,7 +123,7 @@ wire signed [15:0] Gy = -$signed({1'b0,a00}) - 2*$signed({1'b01,a01}) - $signed(
                          + $signed({1'b0,a20}) + 2*$signed({1'b0,a21}) + $signed({1'b0,a22});
 
 // magnitude (simple abs sum or sqrt approximation)
-wire [15:0] mag = (Gx[15] ? -Gx : Gx) + (Gy[15] ? -Gy : Gy);
+assign mag = (Gx[15] ? -Gx : Gx) + (Gy[15] ? -Gy : Gy);
 
 
 endmodule
