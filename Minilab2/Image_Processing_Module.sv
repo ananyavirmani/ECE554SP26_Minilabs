@@ -95,7 +95,7 @@ always @(posedge iCLK or negedge iRST) begin
     {r2_s0,r2_s1,r2_s2} <= 0;
   end else if (mDVAL) begin
     r1_s0 <= row1_tap0; r1_s1 <= r1_s0; r1_s2 <= r1_s1;
-    r2_s0 <= row2_tap0; r2_s1 <= r2_s0; r2_s2 <= r2_s1;
+    r2_s0 <= row1_tap1; r2_s1 <= r2_s0; r2_s2 <= r2_s1;
   end
 end
 
