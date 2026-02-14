@@ -8,7 +8,8 @@ module image_processing_module (
     output [11:0] oBlue,
     output oDVAL,
     input [10:0] iX_Cont,
-    input [10:0] iY_Cont
+    input [10:0] iY_Cont,
+    input En
 );
 
 logic [11:0] mDATA_0, mDATA_1;
@@ -100,8 +101,8 @@ end
 
 // assemble 3x3 neighborhood (a00 top-left .. a22 bottom-right)
 // NOTE: mapping depends on your shift direction; this example assumes cur_s2 is leftmost
-wire [11:0] a00 = r1_s2, a01 = r1_s1, a02 = r1_s0;
-wire [11:0] a10 = r2_s2, a11 = r2_s1, a12 = r2_s0;
+wire [11:0] a00 = r2_s2, a01 = r2_s1, a02 = r2_s0;
+wire [11:0] a10 = r1_s2, a11 = r1_s1, a12 = r1_s0;
 wire [11:0] a20 = cur_s2, a21 = cur_s1, a22 = cur_s0;
 
 // delayed valid (pipeline depth = shifts + line-buffer latency)
@@ -117,13 +118,12 @@ end
 assign window_valid = win_valid_1;
 
 // example Sobel (signed accumulate; widen bits as needed)
-wire signed [15:0] Gx = ({1'b0,a02}) + 2*({1'b0,a12}) + ({1'b0,a22})
-                        -(({1'b0,a00}) + 2*({1'b0,a10}) + ({1'b0,a20}));
-wire signed [15:0] Gy = ({1'b0,a20}) + 2*({1'b0,a21}) + ({1'b0,a22})
-                        -(({1'b0,a00}) + 2*({1'b01,a01}) + ({1'b0,a02}));
+wire signed [15:0] Gx = (a02) + ({a12, 1'b0}) + (a22)
+                        -((a00) + ({a10, 1'b0}) + (a20));
+wire signed [15:0] Gy = (a20) + ({a21, 1'b0}) + (a22)
+                        -((a00) + ({a01,1'b0}) + (a02));
 
-// magnitude (simple abs sum or sqrt approximation)
-assign mag = (En) ? Gx : Gy;
+assign mag = (En) ? ((Gx[15]) ? -Gx : Gx) : ((Gy[15]) ? -Gy : Gy);
 
 
 endmodule
