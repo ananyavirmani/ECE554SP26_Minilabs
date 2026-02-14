@@ -23,13 +23,14 @@ logic [15:0] mag;
 logic window_valid;
 
 assign gray_pixel = gray_scale[13:2];
+assign mDATA_0 = iDATA;
 
 Line_Buffer1 u0(
     .clken(iDVAL),
     .clock(iCLK),
     .shiftin(iDATA),
-    .taps0x(mDATA_1),
-    .taps1x(mDATA_0)
+    .taps0x(mDATA_1),  // single row delay (1280 pixels) for 2x2 neighborhood
+    .taps1x()
 );
 
 
@@ -42,7 +43,6 @@ assign oDVAL = window_valid;
 
 always @(posedge iCLK or negedge iRST) begin
     if (!iRST) begin
-        gray_scale <= 0;
         mDATAd_0 <= 0;
         mDATAd_1 <= 0;
         mDVAL <= 0;
@@ -50,7 +50,7 @@ always @(posedge iCLK or negedge iRST) begin
         mDATAd_0 <= mDATA_0;
         mDATAd_1 <= mDATA_1;
         mDVAL <= {iY_Cont[0] | iX_Cont[0]} ? 1'b0 : iDVAL;
-        gray_scale <= (mDATA_0 + mDATA_1 + mDATAd_0 + mDATAd_1);
+        gray_scale <= mDATA_0 + mDATA_1 + mDATAd_0 + mDATAd_1;
     end
 end
 
