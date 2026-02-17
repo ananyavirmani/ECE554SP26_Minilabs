@@ -8,7 +8,8 @@ module image_processing_module (
     output [11:0] oBlue,
     output oDVAL,
     input [10:0] iX_Cont,
-    input [10:0] iY_Cont
+    input [10:0] iY_Cont,
+    input En
 );
 
 logic [11:0] mDATA_0, mDATA_1;
