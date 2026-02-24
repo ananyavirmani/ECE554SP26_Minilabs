@@ -1,5 +1,5 @@
 Flow report for DE1_SoC_CAMERA
-Fri Feb 13 15:17:16 2026
+Wed Feb 18 14:34:05 2026
 Quartus Prime Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
 
 
@@ -41,18 +41,18 @@ on the Quartus Prime software download page.
 +-----------------------------------------------------------------------------------+
 ; Flow Summary                                                                      ;
 +---------------------------------+-------------------------------------------------+
-; Flow Status                     ; Successful - Fri Feb 13 15:17:09 2026           ;
+; Flow Status                     ; Successful - Wed Feb 18 14:33:56 2026           ;
 ; Quartus Prime Version           ; 25.1std.0 Build 1129 10/21/2025 SC Lite Edition ;
 ; Revision Name                   ; DE1_SoC_CAMERA                                  ;
 ; Top-level Entity Name           ; DE1_SoC_CAMERA                                  ;
 ; Family                          ; Cyclone V                                       ;
 ; Device                          ; 5CSEMA5F31C6                                    ;
 ; Timing Models                   ; Final                                           ;
-; Logic utilization (in ALMs)     ; 789 / 32,070 ( 2 % )                            ;
-; Total registers                 ; 1393                                            ;
+; Logic utilization (in ALMs)     ; 733 / 32,070 ( 2 % )                            ;
+; Total registers                 ; 1340                                            ;
 ; Total pins                      ; 226 / 457 ( 49 % )                              ;
 ; Total virtual pins              ; 0                                               ;
-; Total block memory bits         ; 151,360 / 4,065,280 ( 4 % )                     ;
+; Total block memory bits         ; 136,024 / 4,065,280 ( 3 % )                     ;
 ; Total DSP Blocks                ; 0 / 87 ( 0 % )                                  ;
 ; Total HSSI RX PCSs              ; 0                                               ;
 ; Total HSSI PMA RX Deserializers ; 0                                               ;
@@ -68,7 +68,7 @@ on the Quartus Prime software download page.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 02/13/2026 15:14:30 ;
+; Start date & time ; 02/18/2026 14:30:30 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; DE1_SoC_CAMERA      ;
 +-------------------+---------------------+
@@ -79,12 +79,13 @@ on the Quartus Prime software download page.
 +-------------------------------------+----------------------------------------+---------------+-------------+------------+
 ; Assignment Name                     ; Value                                  ; Default Value ; Entity Name ; Section Id ;
 +-------------------------------------+----------------------------------------+---------------+-------------+------------+
-; COMPILER_SIGNATURE_ID               ; 84117476753747.177101727018472         ; --            ; --          ; --         ;
+; COMPILER_SIGNATURE_ID               ; 84117476753747.177144663005296         ; --            ; --          ; --         ;
 ; MAX_CORE_JUNCTION_TEMP              ; 85                                     ; --            ; --          ; --         ;
 ; MIN_CORE_JUNCTION_TEMP              ; 0                                      ; --            ; --          ; --         ;
 ; MISC_FILE                           ; v/sdram_pll.cmp                        ; --            ; --          ; --         ;
 ; MISC_FILE                           ; v/sdram_pll_sim/sdram_pll.vo           ; --            ; --          ; --         ;
 ; MISC_FILE                           ; v/Line_Buffer1.bsf                     ; --            ; --          ; --         ;
+; MISC_FILE                           ; LineBuffer2_bb.v                       ; --            ; --          ; --         ;
 ; PARTITION_COLOR                     ; -- (Not supported for targeted family) ; --            ; --          ; Top        ;
 ; PARTITION_FITTER_PRESERVATION_LEVEL ; -- (Not supported for targeted family) ; --            ; --          ; Top        ;
 ; PARTITION_NETLIST_TYPE              ; -- (Not supported for targeted family) ; --            ; --          ; Top        ;
@@ -100,11 +101,11 @@ on the Quartus Prime software download page.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:00:09     ; 1.0                     ; 4981 MB             ; 00:00:20                           ;
-; Fitter               ; 00:02:21     ; 1.1                     ; 7517 MB             ; 00:11:33                           ;
+; Analysis & Synthesis ; 00:00:12     ; 1.0                     ; 4978 MB             ; 00:00:24                           ;
+; Fitter               ; 00:03:04     ; 1.0                     ; 7533 MB             ; 00:14:16                           ;
 ; Assembler            ; 00:00:05     ; 1.0                     ; 5258 MB             ; 00:00:04                           ;
-; Timing Analyzer      ; 00:00:06     ; 2.0                     ; 5467 MB             ; 00:00:10                           ;
-; Total                ; 00:02:41     ; --                      ; --                  ; 00:12:07                           ;
+; Timing Analyzer      ; 00:00:07     ; 1.8                     ; 5467 MB             ; 00:00:10                           ;
+; Total                ; 00:03:28     ; --                      ; --                  ; 00:14:54                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

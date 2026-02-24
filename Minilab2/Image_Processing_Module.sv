@@ -101,5 +101,5 @@ wire signed [15:0] Gx = -$signed({1'b0,a00}) - 2*$signed({1'b0,a01}) - $signed({
                          + $signed({1'b0,a20}) + 2*$signed({1'b0,a21}) + $signed({1'b0,a22});
 
 
-assign mag = (Gy[15] ? -Gy : Gy); 
+assign mag = (Gx[15] ? -Gx : Gx); 
 endmodule
