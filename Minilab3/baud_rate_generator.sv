@@ -3,8 +3,7 @@ module baud_rate_generator(
     input rst,
     input wr_low,
     input wr_high,
-    input [7:0] db_high,
-    input [7:0] db_low,
+    input [7:0] db_data,
     output logic baud_en
 );
 
@@ -14,6 +13,7 @@ logic [15:0] store;
 always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
         divisor <= 16'h0146;
+        store <= 16'h0000;
         baud_en <= 1'b0;
 
     end else if (divisor == 16'h0000) begin
@@ -23,10 +23,10 @@ always_ff @(posedge clk or posedge rst) begin
     end else begin
         baud_en <= 1'b0;
         if (wr_low)
-            store[7:0] <= db_low;
+            store[7:0] <= db_data;
 
         else if (wr_high)
-            store[15:8] <= db_high;
+            store[15:8] <= db_data;
 
         else
             divisor <= divisor - 1'b1;
