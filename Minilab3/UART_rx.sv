@@ -1,6 +1,6 @@
 module UART_rx(
 	input clk,						// Clock
-	input rst_n,					// Reset
+	input rst,					// Reset
 	input RX,						// Serial data input
 	input clr_rdy,					// Knocks down rdy when asserted
     input baud_en,					// Asserted at the baud rate; used to time the sampling of RX
@@ -21,9 +21,9 @@ module UART_rx(
 
 
 	//accounting meta-stability by double flopping RX
-	always_ff @(posedge clk, negedge rst_n) begin
+	always_ff @(posedge clk, posedge rst) begin
 		//prestting the flops to 1 to ensure no false edge is detected in SM
-		if (!rst_n) begin
+		if (rst) begin
 			RX_FF1 <= 1'b1;
 			meta_free_RX <= 1'b1;
 		end else begin
@@ -37,7 +37,7 @@ module UART_rx(
   /*																	 	                        .........................
 	*				--meta_free_RX--									    	               -----.bit_cnt!=4'hA/receiving.----
 	* .......		|			   |											               |    .........................	|
-	* .rst_n.---> ////////<---------           ...............................            ///////////       					|
+	* .rst.---> ////////<---------           ...............................            ///////////       					|
 	* .......	 //idle//----------------------.!meta_free_RX/start,receiving.----------> //recieve// <--------------------------
 	*		 -->////////	                   ...............................  	      ///////////----
 	*		 |																	  						|
@@ -52,8 +52,8 @@ module UART_rx(
 	state_t state, nxt_state;
 	
 	// Flip flop for state transitions and reset
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, posedge rst)
+		if (rst)
 			state <= idle;
 		else 
 			state <= nxt_state;
@@ -106,8 +106,8 @@ module UART_rx(
 	
 	
 	//SR FF
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, posedge rst)
+		if (rst)
 			rdy <= 1'b0;
 		else if (start || clr_rdy)
 			rdy <= 1'b0;
