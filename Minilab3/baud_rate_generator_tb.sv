@@ -3,8 +3,7 @@ module baud_rate_generator_tb();
     // DUT interface
     logic clk;
     logic rst;
-    logic [7:0] db_high;
-    logic [7:0] db_low;
+    logic [7:0] db_data;
     logic wr_low;
     logic wr_high;
     logic baud_en;
@@ -15,8 +14,7 @@ module baud_rate_generator_tb();
         .rst(rst),
         .wr_low(wr_low),
         .wr_high(wr_high),
-        .db_high(db_high),
-        .db_low(db_low),
+        .db_data(db_data),
         .baud_en(baud_en)
     );
 
@@ -26,20 +24,20 @@ module baud_rate_generator_tb();
 
     task automatic write_low(input [7:0] value);
 
-        @(posedge clk);
+        @(negedge clk);
         db_data = value;
         wr_low = 1;
-        @(posedge clk);
+        @(negedge clk);
         wr_low = 0;
 
     endtask
 
     task automatic write_high(input [7:0] value);
 
-        @(posedge clk);
+        @(negedge clk);
         db_data = value;
         wr_high = 1;
-        @(posedge clk);
+        @(negedge clk);
         wr_high = 0;
 
     endtask
@@ -57,7 +55,7 @@ module baud_rate_generator_tb();
         @(posedge clk);
 
         // Confirm load
-        $display("Loaded divisor = 0x%04h", dut.divisor);
+        $display("Loaded divisor = 0x%04h", dut.store);
 
         // Count cycles until first baud_en pulse
         cycles = 0;
@@ -80,10 +78,9 @@ module baud_rate_generator_tb();
         rst = 1;
         wr_low = 0;
         wr_high = 0;
-        db_low = 0;
-        db_high = 0;
+        db_data = 0;
 
-        repeat (3) @(posedge clk);
+        repeat (3) @(negedge clk);
         rst = 0;
 
         // divisor = (50e6 / (16 * baud)) - 1
@@ -94,7 +91,7 @@ module baud_rate_generator_tb();
     end
 
 
-    always #10 clk = ~clk;
+    always #5 clk = ~clk;
 
 endmodule
 
