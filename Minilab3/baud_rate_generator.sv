@@ -12,8 +12,8 @@ logic [15:0] store;
 
 always_ff @(posedge clk or posedge rst) begin
     if (rst) begin
-        divisor <= 16'h0146;
         store <= 16'h0000;
+        divisor <= 16'h0146;
         baud_en <= 1'b0;
 
     end else if (divisor == 16'h0000) begin
