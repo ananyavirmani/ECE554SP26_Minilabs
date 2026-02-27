@@ -1,97 +1,195 @@
-module UART_tb();
-	
-	logic clk;				// Clock
-	logic rst;			// Asynch reset
-	logic trmt;				// Asserted for 1 clock to initiate transmission
-	logic TX;				// Serial data output
-	logic [7:0]tx_data;		// Byte to transmit
-	logic tx_done;			// Asserted when byte is done transmitting; stays high till next byte transmitted
-	logic clr_rdy;			// Knocks down rdy when asserted
-	logic [7:0]rx_data;		// Byte received
-	logic rdy;				// Asserted when byte received; stays high until start bit of next byte starts, or until clr_rdy asserted
-	
-	logic test_fail = 0;	// innocent until proven guilty (test fail vector)
-	
-	
-	//intantiating TX
-	UART_tx iUART_tx (.clk(clk), .rst(rst), .trmt(trmt), .baud_en(baud_en), .tx_data(tx_data), .tx_done(tx_done), .TX(TX));
-	
-	//intantiating RX
-	UART_rx iUART_rx (.clk(clk), .rst(rst), .RX(TX), .clr_rdy(clr_rdy), .rx_data(rx_data), .rdy(rdy), .baud_en(baud_en));
+module loop_tb ();
 
-    baud_rate_generator i_baud_rate_generator (
+// Receiver Signals
+logic clk;
+logic rst;
+logic rx_baud;  
+logic line;
+logic reset_valid;   // clears the valid flag
+logic [7:0] o_data;
+logic o_valid;
+
+// Transmit Signals 
+logic start;         // initiates a transaction 
+logic [7:0] i_data;
+logic tx_en;
+logic busy;
+logic wr_low;
+logic wr_high;
+logic [7:0] db_data;
+
+// -----------------------------
+// Module Instantiation
+// -----------------------------
+UART_rx iREC(
+	.clk(clk),						
+	.rst(rst),					
+	.RX(line),						
+	.clr_rdy(reset_valid),					
+	.baud_en(baud_en),					
+	.rx_data(o_data),		
+	.rdy(o_valid)					
+);
+
+UART_tx iTRANS(
+	.clk(clk),					
+	.rst(rst),					
+	.trmt(start),					
+	.tx_data(i_data),			
+  .baud_en(baud_en),
+	.tx_done(),		
+	.TX(line)				
+);
+
+// baud_rate_generator iBAUD_GEN(
+//     .clk(clk),
+//     .rst(rst),
+//     .db_high(8'h00),
+//     .db_low(8'h05),
+//     .tx_en(tx_en),   // when we shift data onto the tx line
+//     .rx_baud(rx_baud)   // when we sample data from the rx line
+// );
+
+baud_rate_generator iBAUD_GEN (
         .clk(clk),
         .rst(rst),
-        .db_high(8'h00),
-        .db_low(8'hA2),
+        .wr_low(wr_low),
+        .wr_high(wr_high),
+        .db_data(db_data),
         .baud_en(baud_en)
-    );
-	
-	initial begin
-		// Default values to 0
-		clk = 0;
-		rst = 1;
-		clr_rdy = 0;
-		
-		@(negedge clk);
-		tx_data = 8'h59;	// data 1 to be transmitted
-		
-		@(posedge clk);
-		@(negedge clk);
-		rst = 0;			// deassert asynch reset
-		trmt = 1;			// assert transmit
-		
-		@(posedge clk);
-		
-		//trmt deasserted after 1 clk cycle
-		trmt = 0;
-		
-		@(posedge tx_done)
+);
 
-		//checks if RX sets the rdy flag
-		if (rdy !== 1)		
-			test_fail = 1;
+  // -----------------------------
+  // Clock generation
+  // -----------------------------
+  initial clk = 1'b0;
+  always #5 clk = ~clk;      // 100 MHz if timescale is 1ns/1ps (adjust as needed)
 
-		//checks if the transmitted data and the recieved data is equivalent
-		if (tx_data !== rx_data)	
-			test_fail = 1;
-			
-		repeat(3) @(posedge clk);
-		
-		clr_rdy = 1;		// remove current rdy data
-		tx_data = 8'hAA;	// data 2 to be transmitted
-		
-		@(posedge clk);
-		
-		clr_rdy = 0;		// deassert clr_rdy
-		trmt = 1;			// assert transmit
-		
-		@(posedge clk);
-		
-		//trmt deasserted after 1 clk cycle
-		trmt = 0;
 
-		@(posedge tx_done)
+  task automatic write_low(input [7:0] value, input logic in_low);
 
-		//checks if RX sets the rdy flag
-		if (rdy !== 1)
-			test_fail = 1;
+      @(negedge clk);
+      db_data = value;
+      wr_low = in_low;
+      @(negedge clk);
+      wr_low = 0;
 
-		//checks if the transmitted data and the recieved data is equivalent
-		if (tx_data !== rx_data)
-			test_fail = 1;
+  endtask
 
-		// Self-check
-		if (test_fail)
-			$display("Test failed.");
-		else
-			$display("YAHOO! Test passed.");
+  task automatic write_high(input [7:0] value, input logic in_high);
 
-		
-		$stop();
-	end
-	
-	always
-		#5 clk = ~clk; // Toggle clock every 5 time units
+      @(negedge clk);
+      db_data = value;
+      wr_high = in_high;
+      @(negedge clk);
+      wr_high = 0;
+
+  endtask
+  // -----------------------------
+  // Task: send one byte
+  // -----------------------------
+  task automatic send_byte(input logic [7:0] b);
+    begin
+      // wait until transmitter is idle
+      @(posedge clk);
+      while (busy) @(posedge clk);
+
+      i_data <= b;
+      start  <= 1'b1;
+      @(posedge clk);
+      start  <= 1'b0;
+    end
+  endtask
+
+  // -----------------------------
+  // Task: wait for a received byte and check it
+  // -----------------------------
+  task automatic expect_byte(input logic [7:0] expected);
+    logic [7:0] got;
+    begin
+      // Wait for receiver to assert valid
+      @(posedge clk);
+      while (!o_valid) @(posedge clk);
+
+      got = o_data;
+
+      if (got !== expected) begin
+        $error("UART LOOPBACK FAIL: expected 0x%02h, got 0x%02h", expected, got);
+      end else begin
+        $display("UART LOOPBACK PASS: received 0x%02h", got);
+      end
+
+      // Clear valid flag (pulse reset_valid if your receiver uses it that way)
+      reset_valid <= 1'b1;
+      @(posedge clk);
+      reset_valid <= 1'b0;
+    end
+  endtask
+
+  task automatic test_divisor(input [7:0] divisor, input logic in_high, input logic in_low);
+
+      // $display("\n--- Testing divisor 0x%04h (%0d) ---", divisor, divisor);
+
+      // Load divisor
+      write_low(divisor, in_low);
+      write_high(divisor, in_high);
+
+      // Wait one cycle for DUT to latch
+      @(posedge clk);
+
+      // Confirm load
+      $display("Loaded divisor = 0x%04h", iBAUD_GEN.store);
+
+      // Count cycles until first baud_en pulse
+      // cycles = 0;
+      // while (baud_en == 0) begin
+      //     @(posedge clk);
+      //     cycles++;
+      // end
+
+      // $display("First baud_en pulse after %0d cycles", cycles);
+      // $display("Expected ≈ divisor + 1 = %0d\n", divisor + 1);
+  endtask
+
+
+   // -----------------------------
+  // Test sequence
+  // -----------------------------
+  initial begin
+    // defaults
+    start       = 1'b0;
+    i_data      = 8'h00;
+    reset_valid = 1'b0;
+    wr_low     = 1'b0;
+    wr_high    = 1'b0;
+
+    // reset
+    rst = 1'b1;
+    repeat (10) @(posedge clk);
+    rst = 1'b0;
+
+    // test_divisor(16'h0146);
+
+    // @(posedge iBAUD_GEN.load); // waits for new counter to load
+
+    // Send one byte and verify loopback
+    send_byte(8'h56);
+    expect_byte(8'h56);
+
+    test_divisor(o_data, 1'b1, wr_high);
+
+    repeat (6) @(posedge clk);
+    send_byte(8'h06);
+    expect_byte(8'h06);
+
+    test_divisor(o_data, wr_low, 1'b1);
+
+     repeat (6) @(posedge clk);
+    send_byte(8'hA5);
+    expect_byte(8'hA5);
+
+    // done
+    $stop();
+  end
 
 endmodule

@@ -1,6 +1,6 @@
 module UART_tx (
 	input clk,					// Clock
-	input rst_n,				// Reset
+	input rst,				// Reset
 	input trmt,					// Asserted for 1 clock to initiate transmission
 	input [7:0]tx_data,			// Byte to transmit
     input baud_en,
@@ -22,7 +22,7 @@ module UART_tx (
   /*																	 	  ............................
 	*				--!trmt--									    	  ----.bit_cnt!=4'hA/transmitting.----
 	* .......		|		|											  |	  ............................	 |
-	* .rst_n.---> ////////<--   ........................             ////////////       					 |
+	* .rst.---> ////////<--   ........................             ////////////       					 |
 	* .......	 //idle//-------.trmt/init,transmitting.----------> //transmit// <----------------------------
 	*		 -->////////	    ........................  	       ////////////----------
 	*		 |																	  		|
@@ -37,8 +37,8 @@ module UART_tx (
 	state_t state, nxt_state;
 
 	// Flip flop for state transition and reset
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, posedge rst)
+		if (rst)
 			state <= idle;
 		else
 			state <= nxt_state;
@@ -72,8 +72,8 @@ module UART_tx (
 
 
 	//shift reg FF
-	always_ff @(posedge clk, negedge rst_n)
-		if (!rst_n)
+	always_ff @(posedge clk, posedge rst)
+		if (rst)
 			tx_shift_reg <= 9'h1FF;
 		else if (init)
 			tx_shift_reg <= {tx_data,1'b0};
@@ -98,7 +98,7 @@ module UART_tx (
 	
 	//SR FF
 	always_ff @(posedge clk)
-		if (!rst_n)
+		if (rst)
 			tx_done <= 1'b0;
 		else if (init)
 			tx_done <= 1'b0;
