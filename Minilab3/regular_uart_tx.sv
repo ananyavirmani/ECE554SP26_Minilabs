@@ -99,7 +99,7 @@ module UART_tx (
 	//SR FF
 	always_ff @(posedge clk)
 		if (rst)
-			tx_done <= 1'b0;
+			tx_done <= 1'b1;
 		else if (init)
 			tx_done <= 1'b0;
 		else if (set_done)

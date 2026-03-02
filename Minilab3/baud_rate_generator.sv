@@ -1,8 +1,9 @@
 module baud_rate_generator(
     input clk,
     input rst,
-    input wr_low,
-    input wr_high,
+    // input wr_low,
+    // input wr_high,
+    input wr_en,
     input [7:0] db_data,
     output logic baud_en
 );
@@ -28,11 +29,11 @@ always_ff @(posedge clk or posedge rst) begin
 
     end else begin
         baud_en <= 1'b0;
-        if (wr_low) begin
+        if (wr_en && !store_data_valid[0]) begin
             store[7:0] <= db_data;
             store_data_valid[0] <= 1'b1;
             
-        end else if (wr_high) begin
+        end else if (wr_en) begin
             store[15:8] <= db_data;
             store_data_valid[1] <= 1'b1;
 

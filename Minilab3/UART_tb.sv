@@ -53,8 +53,9 @@ UART_tx iTRANS(
 baud_rate_generator iBAUD_GEN (
         .clk(clk),
         .rst(rst),
-        .wr_low(wr_low),
-        .wr_high(wr_high),
+        // .wr_low(wr_low),
+        // .wr_high(wr_high),
+        .wr_en(wr_low || wr_high),
         .db_data(db_data),
         .baud_en(baud_en)
 );

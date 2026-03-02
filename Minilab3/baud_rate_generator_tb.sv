@@ -12,8 +12,9 @@ module baud_rate_generator_tb();
     baud_rate_generator iDUT (
         .clk(clk),
         .rst(rst),
-        .wr_low(wr_low),
-        .wr_high(wr_high),
+        // .wr_low(wr_low),
+        // .wr_high(wr_high),
+        .wr_en(wr_low || wr_high),
         .db_data(db_data),
         .baud_en(baud_en)
     );
